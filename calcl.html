@@ -1,0 +1,285 @@
+<html lang="pt-Br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <title>Calculadora</title>
+    <style>
+        * {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #4d5348;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  background-image: linear-gradient(to left, #ff6662, #f98062, #ff9065);
+  height: 100vh;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calculator{
+  background-color: #eae4d3;
+  padding: 3vh 3vh 3vh 3vh;
+  border-radius: 1rem;
+  box-shadow: 0 10px 10px 0 #d35652;
+}
+
+#display {
+  background-color: #fdf8fd;
+  padding: 15px;
+  border-radius: 0.5rem;
+  text-align: right;
+  height: 5vh;
+  margin: 0.5rem;
+}
+
+.calculatorButtons{
+  width: 4rem;
+  height: 3rem;
+  border: none;
+  margin: 0.3rem;
+  border-radius: 0.5rem;
+  background-color: #fef9ff;
+  box-shadow: 0 4px #cac5b6;
+  text-align: center;
+}
+
+.calculatorButtons:active {
+  transform: translateY(0.1vh);
+  box-shadow: 0 2px #cac5b6;
+}
+
+#cleanDisplay, #deleteDigit, #division, #multiplication, #subtraction, #sum, #result{
+  background-color: #928686;
+  color: #fdfffc;
+}
+
+#result{
+  height: 6.8rem;
+}
+
+#num0{
+  width: 8.7rem;
+}
+    </style>
+</head>
+
+<body>
+	<div class="container">
+				<div class="calculator">
+
+					<table>
+						<tr>
+							<td colspan="4">
+								<input type="text" id="display" readonly>
+							</td>
+						</tr>
+						<tr>
+							<td><button class="calculatorButtons" id="cleanDisplay" value="C">C</td>
+							<td><button class="calculatorButtons" id="deleteDigit" value="CE">CE</td>
+							<td><button class="calculatorButtons" id="division" value="/">&divide;</td>
+							<td><button class="calculatorButtons" id="multiplication" value="*">&times;</td>
+						</tr>
+						<tr>
+							<td><button class="calculatorButtons" id="num7" value="7">7</td>
+							<td><button class="calculatorButtons" id="num8" value="8">8</td>
+							<td><button class="calculatorButtons" id="num9" value="9">9</td>
+							<td><button class="calculatorButtons" id="subtraction" value="-">-</td>
+						</tr>
+						<tr>
+							<td><button class="calculatorButtons" id="num4" value="4">4</td>
+							<td><button class="calculatorButtons" id="num5" value="5">5</td>
+							<td><button class="calculatorButtons" id="num6" value="6">6</td>
+							<td><button class="calculatorButtons" id="sum" value="+">+</td>
+							
+						</tr>
+						<tr>
+							<td><button class="calculatorButtons" id="num1" value="1">1</td>
+							<td><button class="calculatorButtons" id="num2" value="2">2</td>
+							<td><button class="calculatorButtons" id="num3" value="3">3</td>
+							<td rowspan="2"><button class="calculatorButtons" id="result" value="=">=</td>
+							
+						</tr>
+						<tr>
+							<td colspan="2"><button class="calculatorButtons" id="num0" value="0">0</td>
+							<td><button class="calculatorButtons" id="point" value=".">.</td>
+							
+							
+						</tr>
+					</table>
+				</div>
+	</div>
+    <script>
+        var display = document.getElementById("display");
+
+var listenerBtn = [];
+
+//Operator buttons
+listenerBtn.push(document.getElementById("sum"));
+listenerBtn.push(document.getElementById("subtraction"));
+listenerBtn.push(document.getElementById("division"));
+listenerBtn.push(document.getElementById("multiplication"));
+
+//Number buttons
+listenerBtn.push(document.getElementById("num0"));
+listenerBtn.push(document.getElementById("num1"));
+listenerBtn.push(document.getElementById("num2"));
+listenerBtn.push(document.getElementById("num3"));
+listenerBtn.push(document.getElementById("num4"));
+listenerBtn.push(document.getElementById("num5"));
+listenerBtn.push(document.getElementById("num6"));
+listenerBtn.push(document.getElementById("num7"));
+listenerBtn.push(document.getElementById("num8"));
+listenerBtn.push(document.getElementById("num9"));
+
+//Additional buttons
+var btnResult = document.getElementById("result");
+var btnCleanDisplay = document.getElementById("cleanDisplay");
+var btnDeleteDigit = document.getElementById("deleteDigit");
+listenerBtn.push(document.getElementById("point"));
+
+var pointCounter = 0;
+var pointLimit = 1;
+
+for (var i = 0; i < listenerBtn.length; i++) {
+  listenerBtn[i].addEventListener("click", writeOnDisplay); 
+}
+
+btnResult.onclick = function () {
+  calculateResult();
+};
+
+btnDeleteDigit.onclick = function () {
+  deleteLastDigit();
+};
+
+btnCleanDisplay.onclick = function () {
+  display.value = "";
+  pointCounter = 0;
+};
+
+function calculateResult() {
+  if (verifyOperator(display.value.substring(display.value.length - 1, display.value.length))) {
+    deleteLastDigit(); //If the last digit on display is an operator, it's ignored
+  }
+
+  var calculatedValue = calculateArray(display.value); 
+
+  if (calculatedValue || calculatedValue == "0") {
+    display.value = calculatedValue;
+  }
+}
+
+function deleteLastDigit() {
+  if (display.value.length > 0) {
+    if (display.value[display.value.length - 1] === ".") {//If the deleted character is a decimal point, it can be replaced by a new one
+      pointCounter = 0;
+    }
+    display.value = display.value.substring(0, display.value.length - 1);
+  }
+}
+
+function writeOnDisplay() {
+  lastDigit = this.value;
+
+  if (verifyOperator(lastDigit)){
+    pointCounter = 0;
+    if (verifyOperator(display.value.substring(display.value.length - 1, display.value.length))) { //replaces the previous operator by the new operator inputed
+      deleteLastDigit();
+    }
+  } 
+    
+  if (verifyDecimalPoint(lastDigit) === true){
+    pointCounter++;
+    if (pointCounter > pointLimit){
+      return;
+    }    
+  } 
+  display.value += lastDigit;  
+}
+
+function verifyDecimalPoint(valorDigitado) {
+  if (valorDigitado === ".") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function verifyOperator(operatorValue) {
+  switch (operatorValue) {
+    case "*":
+      return true;
+    case "/":
+      return true;
+    case "+":
+      return true;
+    case "-":
+      return true;
+    default:
+      return false;
+  }
+}
+
+function calculateArray(exp) {
+  exp = exp.toString().split("+");
+  for (a = 0; a < exp.length; a++) {
+    exp[a] = exp[a].split("-");
+    for (b = 0; b < exp[a].length; b++) {
+      exp[a][b] = exp[a][b].split("*");
+      for (c = 0; c < exp[a][b].length; c++) {
+        exp[a][b][c] = exp[a][b][c].split("/");
+        exp[a][b][c] = divideArray(exp[a][b][c]);
+      }
+      exp[a][b] = multiplyArray(exp[a][b]);
+    }
+    exp[a] = subtractArray(exp[a]);
+  }
+  exp = sumArray(exp);
+
+  return exp;
+}
+
+function multiplyArray(parameter) {
+  var resultMult = 1;
+  for (var x = 0; x < parameter.length; x++) {
+    resultMult *= parameter[x];
+  }
+  return resultMult;
+}
+
+function divideArray(parameter) {
+  var resultDiv = parameter[0];
+  for (var x = 1; x < parameter.length; x++) {
+    resultDiv /= parameter[x];
+  }
+  return resultDiv;
+}
+
+function subtractArray(parameter) {
+  var resultSub = parameter[0];
+  for (var x = 1; x < parameter.length; x++) {
+    resultSub -= parameter[x];
+  }
+  return resultSub;
+}
+
+function sumArray(parameter) {
+  var resultSum = 0;
+  for (var x = 0; x < parameter.length; x++) {
+    resultSum += parameter[x];
+  }
+  return resultSum;
+}
+    </script>
+</body>
